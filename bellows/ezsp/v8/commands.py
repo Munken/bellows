@@ -640,6 +640,7 @@ COMMANDS = {
             t.uint8_t,
             t.uint32_t,
             t.EmberGpSinkListEntry,
+            t.uint8_t,
             t.LVBytes,
         ),
     ),

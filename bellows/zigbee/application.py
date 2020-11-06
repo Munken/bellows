@@ -230,6 +230,28 @@ class ControllerApplication(zigpy.application.ControllerApplication):
             self._handle_reset_request(*args)
         elif frame_name == "idConflictHandler":
             self._handle_id_conflict(*args)
+        elif frame_name == "gpepIncomingMessageHandler":
+            print(str(args))
+            self._handle_gp_frame(*args)
+
+    def _handle_gp_frame(
+        self,
+        status,
+        gpdLink,
+        sequenceNumber,
+        addr,
+        gpdfSecurityLevel,
+        gpdfSecurityKeyType,
+        autoCommissioning,
+        rxAfterTx,
+        gpdSecurityFrameCounter,
+        gpdCommandId,
+        mic,
+        sinkList,
+        gpdCommandPayloadLength,
+        gpdCommandPayload
+    ):
+        LOGGER.info("ZGP frame : %s", addr)
 
     def _handle_frame(
         self,

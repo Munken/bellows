@@ -120,6 +120,11 @@ class ControllerApplication(zigpy.application.ControllerApplication):
         await self.add_endpoint(
             output_clusters=[zigpy.zcl.clusters.security.IasZone.cluster_id]
         )
+        await self.add_endpoint(
+            endpoint=242,
+            profile_id=41440,
+            output_clusters=[zigpy.zcl.clusters.general.GreenPowerProxy.cluster_id]
+        )
 
         brd_manuf, brd_name, version = await self._ezsp.get_board_info()
         LOGGER.info("EZSP Radio manufacturer: %s", brd_manuf)
@@ -231,7 +236,7 @@ class ControllerApplication(zigpy.application.ControllerApplication):
         elif frame_name == "idConflictHandler":
             self._handle_id_conflict(*args)
         elif frame_name == "gpepIncomingMessageHandler":
-            print(str(args))
+            LOGGER.debug("gpepIncomingMessageHandler %s", args)
             self._handle_gp_frame(*args)
 
     def _handle_gp_frame(
@@ -244,14 +249,20 @@ class ControllerApplication(zigpy.application.ControllerApplication):
         gpdfSecurityKeyType,
         autoCommissioning,
         rxAfterTx,
-        gpdSecurityFrameCounter,
         gpdCommandId,
+        gpdSecurityFrameCounter,
         mic,
-        sinkList,
+        proxyTableIndex,
         gpdCommandPayloadLength,
         gpdCommandPayload
     ):
-        LOGGER.info("ZGP frame : %s", addr)
+        if not 242 in self.devices[self._ieee].endpoints:
+            self.devices[self._ieee].add_endpoint(242)
+            self.devices[self._ieee].endpoints[242].status =  zigpy.endpoint.Status.ZDO_INIT
+            self.devices[self._ieee].endpoints[242].profile_id = 0x104
+            self.devices[self._ieee].endpoints[242].device_type = 0xa1e0
+            self.devices[self._ieee].endpoints[242].add_output_cluster(zigpy.zcl.clusters.general.GreenPowerProxy.cluster_id)
+        self.devices[self._ieee].endpoints[242].out_clusters[zigpy.zcl.clusters.general.GreenPowerProxy.cluster_id].handle_decode_message(addr.applicationId,gpdfSecurityLevel,gpdfSecurityKeyType,addr.gpdIeeeAddress,gpdSecurityFrameCounter,gpdCommandId,gpdCommandPayloadLength,gpdCommandPayload)
 
     def _handle_frame(
         self,

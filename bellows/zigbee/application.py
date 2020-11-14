@@ -122,7 +122,7 @@ class ControllerApplication(zigpy.application.ControllerApplication):
         )
         await self.add_endpoint(
             endpoint=242,
-            profile_id=41440,
+            profile_id=zigpy.profiles.zha.PROFILE_ID,
             output_clusters=[zigpy.zcl.clusters.general.GreenPowerProxy.cluster_id]
         )
 
@@ -257,13 +257,22 @@ class ControllerApplication(zigpy.application.ControllerApplication):
         gpdCommandPayload
     ):
         if not 242 in self.devices[self._ieee].endpoints:
-            self.devices[self._ieee].add_endpoint(242)
-            self.devices[self._ieee].endpoints[242].status =  zigpy.endpoint.Status.ZDO_INIT
-            self.devices[self._ieee].endpoints[242].profile_id = 0x104
-            self.devices[self._ieee].endpoints[242].device_type = 0xa1e0
-            self.devices[self._ieee].endpoints[242].add_output_cluster(zigpy.zcl.clusters.general.GreenPowerProxy.cluster_id)
+            ep = self.devices[self._ieee].add_endpoint(242)
+            ep.status =  zigpy.endpoint.Status.ZDO_INIT
+            ep.profile_id = zigpy.profiles.zha.PROFILE_ID
+            ep.device_type = zigpy.profiles.zha.DeviceType.GREEN_POWER
+            ep.add_output_cluster(zigpy.zcl.clusters.general.GreenPowerProxy.cluster_id)
         if not autoCommissioning:
-            self.devices[self._ieee].endpoints[242].out_clusters[zigpy.zcl.clusters.general.GreenPowerProxy.cluster_id].handle_notification(addr.applicationId,gpdfSecurityLevel,gpdfSecurityKeyType,addr.gpdIeeeAddress,gpdSecurityFrameCounter,gpdCommandId,gpdCommandPayloadLength,gpdCommandPayload)
+            self.devices[self._ieee].endpoints[242].out_clusters[zigpy.zcl.clusters.general.GreenPowerProxy.cluster_id].handle_notification(
+                addr.applicationId,
+                gpdfSecurityLevel,
+                gpdfSecurityKeyType,
+                addr.gpdIeeeAddress,
+                gpdSecurityFrameCounter,
+                gpdCommandId,
+                gpdCommandPayloadLength,
+                gpdCommandPayload
+            )
 
     def _handle_frame(
         self,

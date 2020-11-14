@@ -262,7 +262,8 @@ class ControllerApplication(zigpy.application.ControllerApplication):
             self.devices[self._ieee].endpoints[242].profile_id = 0x104
             self.devices[self._ieee].endpoints[242].device_type = 0xa1e0
             self.devices[self._ieee].endpoints[242].add_output_cluster(zigpy.zcl.clusters.general.GreenPowerProxy.cluster_id)
-        self.devices[self._ieee].endpoints[242].out_clusters[zigpy.zcl.clusters.general.GreenPowerProxy.cluster_id].handle_decode_message(addr.applicationId,gpdfSecurityLevel,gpdfSecurityKeyType,addr.gpdIeeeAddress,gpdSecurityFrameCounter,gpdCommandId,gpdCommandPayloadLength,gpdCommandPayload)
+        if not autoCommissioning:
+            self.devices[self._ieee].endpoints[242].out_clusters[zigpy.zcl.clusters.general.GreenPowerProxy.cluster_id].handle_notification(addr.applicationId,gpdfSecurityLevel,gpdfSecurityKeyType,addr.gpdIeeeAddress,gpdSecurityFrameCounter,gpdCommandId,gpdCommandPayloadLength,gpdCommandPayload)
 
     def _handle_frame(
         self,

@@ -121,7 +121,7 @@ class ControllerApplication(zigpy.application.ControllerApplication):
             output_clusters=[zigpy.zcl.clusters.security.IasZone.cluster_id]
         )
         await self.add_endpoint(
-            endpoint=242,
+            endpoint=zigpy.zcl.clusters.general.GreenPowerProxy.enpoint_id,
             profile_id=zigpy.profiles.zha.PROFILE_ID,
             output_clusters=[zigpy.zcl.clusters.general.GreenPowerProxy.cluster_id]
         )
@@ -256,14 +256,14 @@ class ControllerApplication(zigpy.application.ControllerApplication):
         gpdCommandPayloadLength,
         gpdCommandPayload
     ):
-        if not 242 in self.devices[self._ieee].endpoints:
-            ep = self.devices[self._ieee].add_endpoint(242)
+        if not zigpy.zcl.clusters.general.GreenPowerProxy.enpoint_id in self.devices[self._ieee].endpoints:
+            ep = self.devices[self._ieee].add_endpoint(zigpy.zcl.clusters.general.GreenPowerProxy.enpoint_id)
             ep.status =  zigpy.endpoint.Status.ZDO_INIT
             ep.profile_id = zigpy.profiles.zha.PROFILE_ID
             ep.device_type = zigpy.profiles.zha.DeviceType.GREEN_POWER
             ep.add_output_cluster(zigpy.zcl.clusters.general.GreenPowerProxy.cluster_id)
         if not autoCommissioning:
-            self.devices[self._ieee].endpoints[242].out_clusters[zigpy.zcl.clusters.general.GreenPowerProxy.cluster_id].handle_notification(
+            self.devices[self._ieee].endpoints[zigpy.zcl.clusters.general.GreenPowerProxy.enpoint_id].out_clusters[zigpy.zcl.clusters.general.GreenPowerProxy.cluster_id].handle_notification(
                 addr.applicationId,
                 gpdfSecurityLevel,
                 gpdfSecurityKeyType,

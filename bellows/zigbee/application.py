@@ -236,7 +236,6 @@ class ControllerApplication(zigpy.application.ControllerApplication):
         elif frame_name == "idConflictHandler":
             self._handle_id_conflict(*args)
         elif frame_name == "gpepIncomingMessageHandler":
-            LOGGER.debug("gpepIncomingMessageHandler %s", args)
             self._handle_gp_frame(*args)
 
     def _handle_gp_frame(
@@ -263,13 +262,13 @@ class ControllerApplication(zigpy.application.ControllerApplication):
             ep.device_type = zigpy.profiles.zha.DeviceType.GREEN_POWER
             ep.add_output_cluster(zigpy.zcl.clusters.general.GreenPowerProxy.cluster_id)
         if autoCommissioning:
-            pass
+            LOGGER.info("GreenPower autoCommissioning frame")
+            self.devices[self._ieee].endpoints[zigpy.zcl.clusters.general.GreenPowerProxy.endpoint_id].out_clusters[zigpy.zcl.clusters.general.GreenPowerProxy.cluster_id].create_device(addr.gpdIeeeAddress)
         else:
             self.devices[self._ieee].endpoints[zigpy.zcl.clusters.general.GreenPowerProxy.endpoint_id].out_clusters[zigpy.zcl.clusters.general.GreenPowerProxy.cluster_id].handle_notification(
                 addr.gpdIeeeAddress,
                 gpdCommandId,
-                gpdCommandPayload,
-                gpdSecurityFrameCounter
+                gpdCommandPayload
             )
 
     def _handle_frame(

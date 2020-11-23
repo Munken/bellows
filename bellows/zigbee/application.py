@@ -243,32 +243,35 @@ class ControllerApplication(zigpy.application.ControllerApplication):
         status,
         gpdLink,
         sequenceNumber,
+        unknown1,
         addr,
         gpdfSecurityLevel,
         gpdfSecurityKeyType,
-        autoCommissioning,
-        rxAfterTx,
-        gpdCommandId,
-        gpdSecurityFrameCounter,
+        counter,
+        command_id,
         mic,
         proxyTableIndex,
-        gpdCommandPayloadLength,
-        gpdCommandPayload
+        payload
     ):
+        header = 0x308c
         if not zigpy.zcl.clusters.general.GreenPowerProxy.endpoint_id in self.devices[self._ieee].endpoints:
             ep = self.devices[self._ieee].add_endpoint(zigpy.zcl.clusters.general.GreenPowerProxy.endpoint_id)
             ep.status =  zigpy.endpoint.Status.ZDO_INIT
             ep.profile_id = zigpy.profiles.zha.PROFILE_ID
             ep.device_type = zigpy.profiles.zha.DeviceType.GREEN_POWER
             ep.add_output_cluster(zigpy.zcl.clusters.general.GreenPowerProxy.cluster_id)
-        if autoCommissioning:
+        if command_id == 0xe0 :
             LOGGER.info("GreenPower autoCommissioning frame")
-            self.devices[self._ieee].endpoints[zigpy.zcl.clusters.general.GreenPowerProxy.endpoint_id].out_clusters[zigpy.zcl.clusters.general.GreenPowerProxy.cluster_id].create_device(addr.gpdIeeeAddress)
+            self.devices[self._ieee].endpoints[zigpy.zcl.clusters.general.GreenPowerProxy.endpoint_id].out_clusters[zigpy.zcl.clusters.general.GreenPowerProxy.cluster_id].create_device(addr)
         else:
             self.devices[self._ieee].endpoints[zigpy.zcl.clusters.general.GreenPowerProxy.endpoint_id].out_clusters[zigpy.zcl.clusters.general.GreenPowerProxy.cluster_id].handle_notification(
-                addr.gpdIeeeAddress,
-                gpdCommandId,
-                gpdCommandPayload
+                addr,
+                header,
+                counter,
+                command_id,
+                int.from_bytes(payload, byteorder="little"),
+                len(payload),
+                mic
             )
 
     def _handle_frame(

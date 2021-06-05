@@ -230,6 +230,9 @@ class ControllerApplication(zigpy.application.ControllerApplication):
             self._handle_reset_request(*args)
         elif frame_name == "idConflictHandler":
             self._handle_id_conflict(*args)
+        elif frame_name == "gpepIncomingMessageHandler":
+            LOGGER.debug("== gpepIncomingMessageHandler %s", args)
+            self.listener_event("zgp_frame", 'bellows', *args)
 
     def _handle_frame(
         self,

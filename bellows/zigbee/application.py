@@ -258,8 +258,9 @@ class ControllerApplication(zigpy.application.ControllerApplication):
         cluster_id = zigpy.zcl.clusters.general.GreenPowerProxy.cluster_id
         device = self.devices[self._ieee]
 
-        LOGGER.debug("Endpoint id {}. Cluster ID {}".format(endpoint_id, cluster_id))
-
+        LOGGER.debug("Endpoint id {}. Cluster ID {}. Payload: {}".format(endpoint_id, cluster_id, payload.hex()))
+        
+        
         if not endpoint_id in device.endpoints:
             LOGGER.debug("Adding endpoint")
             ep = device.add_endpoint(endpoint_id)
@@ -271,7 +272,8 @@ class ControllerApplication(zigpy.application.ControllerApplication):
         endpoint = device.endpoints[endpoint_id]
         if command_id == 0xe0:
             LOGGER.info("GreenPower autoCommissioning frame")
-            endpoint.out_clusters[cluster_id].create_device(addr)
+            device_type = int(payload[0]) if len(payload) > 0 else None
+            endpoint.out_clusters[cluster_id].create_device(addr, type=device_type)
         else:
             endpoint.out_clusters[cluster_id].handle_notification(
                 addr,

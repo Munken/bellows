@@ -272,8 +272,9 @@ class ControllerApplication(zigpy.application.ControllerApplication):
         endpoint = device.endpoints[endpoint_id]
         if command_id == 0xe0:
             LOGGER.info("GreenPower autoCommissioning frame")
-            device_type = int(payload[0]) if len(payload) > 0 else None
-            endpoint.out_clusters[cluster_id].create_device(addr, type=device_type)
+            device_type = payload[0]
+
+            endpoint.out_clusters[cluster_id].create_device(addr, type=device_type, payload=payload)
         else:
             endpoint.out_clusters[cluster_id].handle_notification(
                 addr,
